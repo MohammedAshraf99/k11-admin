@@ -1,0 +1,36 @@
+ <div class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+      
+      <!-- Native Angular 20 Loop for Active Toasts -->
+    <div class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+      <!-- Native Angular 20 Loop for Active Toasts -->
+      @for (toast of toastService.toasts(); track toast.id) {
+        <div 
+          class="pointer-events-auto flex items-center
+           justify-between gap-3 px-4 py-3.5 rounded-xl border shadow-lg transition-all duration-300 animate-slide-in bg-white"
+          [ngClass]="{
+            'border-green-100 text-green-900': toast.type === 'success',
+            'border-red-100 text-red-900': toast.type === 'error',
+            'border-amber-100 text-amber-900': toast.type === 'info'
+          }"
+        >
+          <!-- Dynamic Status Icon Selection -->
+          <div class="flex items-center gap-3">
+            @if (toast.type === 'success') {
+              <mat-icon class="text-green-600">check_circle</mat-icon>
+            } @else if (toast.type === 'error') {
+              <mat-icon class="text-red-500">error</mat-icon>
+            } @else {
+              <mat-icon class="text-amber-600">info</mat-icon>
+            }
+            <span class="text-sm font-medium leading-tight">{{ toast.message }}</span>
+          </div>
+
+          <!-- Manual Close Trigger Trigger Button -->
+          <button (click)="toastService.clear(toast.id)" class="text-gray-400 hover:text-gray-600 p-0.5 rounded-lg hover:bg-gray-50 transition-colors">
+            <mat-icon class="!h-4 !w-4 !text-[16px]">close</mat-icon>
+          </button>
+        </div>
+      }
+      
+    </div>
+  

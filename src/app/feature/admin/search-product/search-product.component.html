@@ -1,0 +1,11 @@
+<mat-icon
+  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 !w-4 !h-4 !text-[18px]"
+  >search</mat-icon
+>
+<input
+  type="text"
+  [ngModel]="searchQuery()"
+  (ngModelChange)="searchQueryChange.emit($event)"
+  placeholder="Search products..."
+  class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-medium focus:outline-hidden"
+/>

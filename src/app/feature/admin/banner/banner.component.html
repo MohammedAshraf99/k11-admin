@@ -1,0 +1,192 @@
+<div class="p-8 bg-slate-50 min-h-screen text-slate-900 dir-ltr font-sans">
+  <!-- Top Bar / Header Block Container -->
+  <div class="bg-white border border-slate-100 rounded-2xl p-6 mb-6 shadow-sm flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+        <span class="text-lg">📁</span> Homepage Banner Management
+      </h1>
+      <p class="text-xs text-slate-500 mt-1">
+        Dynamically configure, add, edit, and delete Hero Carousel banners.
+      </p>
+    </div>
+    <button
+      (click)="openAddModal()"
+      class="bg-[#0B132B] hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all shadow-sm"
+    >
+      <span>+ Add New Banner</span>
+    </button>
+  </div>
+
+  <!-- Banners Table Container -->
+  @if (isLoading()) {
+    <div class="text-center py-12 text-slate-400 text-sm bg-white rounded-2xl border border-slate-100 shadow-sm">
+      <div class="animate-pulse">Loading data...</div>
+    </div>
+  } @else if (banners().length > 0) {
+    <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-100">
+          <tr>
+            <th class="p-4 font-semibold">Product / Image</th>
+            <th class="p-4 font-semibold">Title</th>
+            <th class="p-4 font-semibold">Subtitle</th>
+            <th class="p-4 font-semibold">Status / Tag</th>
+            <th class="p-4 font-semibold text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (banner of banners(); track banner._id) {
+            <tr class="hover:bg-slate-50/50 transition-colors">
+              <td class="p-4">
+                <img
+                  [src]="banner.imageUrl"
+                  [alt]="banner.title"
+                  class="w-12 h-12 object-cover rounded-xl border border-slate-100 shadow-sm"
+                />
+              </td>
+              <td class="p-4 font-bold text-slate-900">
+                {{ banner.title }}
+              </td>
+              <td class="p-4 text-slate-500 max-w-xs truncate">
+                {{ banner.subtitle || "-" }}
+              </td>
+              <td class="p-4">
+                @if (banner.discountTag) {
+                  <span class="bg-emerald-50 text-emerald-600 font-medium px-2.5 py-1 rounded-md text-[11px] border border-emerald-100">
+                    {{ banner.discountTag }}
+                  </span>
+                } @else {
+                  <span class="bg-slate-100 text-slate-600 font-medium px-2.5 py-1 rounded-md text-[11px]">
+                    active
+                  </span>
+                }
+              </td>
+              <td class="p-4 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <!-- Styled Edit Button -->
+                  <button
+                    (click)="openEditModal(banner)"
+                    class="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-all"
+                    title="Edit"
+                  >
+                    ✏️
+                  </button>
+                  <!-- Styled Delete Button -->
+                  <button
+                    (click)="deleteBanner(banner._id)"
+                    [disabled]="deletingId() === banner._id"
+                    class="bg-rose-50 hover:bg-rose-100 text-rose-600 p-2 rounded-lg transition-all disabled:opacity-50"
+                    title="Delete"
+                  >
+                    @if (deletingId() === banner._id) {
+                      <span class="inline-block w-3 h-3 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></span>
+                    } @else {
+                      <span>🗑️</span>
+                    }
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="bg-white border border-slate-100 rounded-2xl p-12 text-center text-slate-500 shadow-sm">
+      <p class="mb-4">No banners available at the moment.</p>
+      <button
+        (click)="openAddModal()"
+        class="bg-[#0B132B] text-white font-semibold px-4 py-2.5 rounded-xl text-xs"
+      >
+        Add First Banner
+      </button>
+    </div>
+  }
+
+  <!-- Modal View (Kept Clean and Adaptive to Light Mode) -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white border border-slate-100 rounded-2xl w-full max-w-md p-6 shadow-xl text-slate-900 dir-ltr animate-in fade-in zoom-in-95 duration-150">
+        <h2 class="text-base font-bold mb-4 text-slate-900">
+          {{ isEditMode() ? "Edit Banner Details" : "Add New Banner" }}
+        </h2>
+
+        <div class="space-y-4 text-xs">
+          <div>
+            <label class="block text-slate-500 font-medium mb-1">Title *</label>
+            <input
+              [(ngModel)]="formBanner().title"
+              type="text"
+              class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-500 font-medium mb-1">Subtitle</label>
+            <input
+              [(ngModel)]="formBanner().subtitle"
+              type="text"
+              class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-500 font-medium mb-1">Offer Tag (e.g., 20% OFF)</label>
+            <input
+              [(ngModel)]="formBanner().discountTag"
+              type="text"
+              class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-500 font-medium mb-1">Button Text</label>
+              <input
+                [(ngModel)]="formBanner().ctaText"
+                type="text"
+                class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-slate-500 font-medium mb-1">Button Link</label>
+              <input
+                [(ngModel)]="formBanner().ctaLink"
+                type="text"
+                class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-500 font-medium mb-1">
+              {{ isEditMode() ? "Change Image (Optional)" : "Banner Image *" }}
+            </label>
+            <input
+              (change)="onFileSelected($event)"
+              type="file"
+              accept="image/*"
+              class="w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            (click)="closeModal()"
+            class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-700 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="saveBanner()"
+            [disabled]="isSaving()"
+            class="px-4 py-2.5 bg-[#0B132B] hover:bg-slate-800 text-white font-semibold rounded-xl text-xs flex items-center gap-2 disabled:opacity-50 transition-all"
+          >
+            <span>{{ isEditMode() ? "Save Changes" : "Add Banner" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

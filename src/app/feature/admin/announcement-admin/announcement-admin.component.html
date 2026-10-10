@@ -1,0 +1,225 @@
+<div class="p-6 bg-slate-50 min-h-screen text-slate-800" dir="ltr">
+  <!-- Header & Action Button -->
+  <div
+    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">
+        Announcement Banner Management
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Create edit toggle or remove top header announcements.
+      </p>
+    </div>
+    <button
+      (click)="openCreateModal()"
+      class="bg-rose-600 hover:bg-rose-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+    >
+      <span>➕</span>
+      <span>Add New Announcement</span>
+    </button>
+  </div>
+
+  <!-- Announcements Table -->
+  <div
+    class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="bg-slate-100/70 border-b border-slate-200 text-slate-600 font-semibold"
+        >
+          <tr>
+            <th class="p-4">Text</th>
+            <th class="p-4">Link</th>
+            <th class="p-4">Start Date</th>
+            <th class="p-4">End Date</th>
+            <th class="p-4">Status</th>
+            <th class="p-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @if (isLoading()) {
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-400">
+                Loading announcements...
+              </td>
+            </tr>
+          } @else if (announcements().length === 0) {
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-400">
+                No announcements found.
+              </td>
+            </tr>
+          } @else {
+            @for (item of announcements(); track item._id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="p-4 font-medium text-slate-900 max-w-xs truncate">
+                  {{ item.text }}
+                </td>
+                <td class="p-4 text-slate-500 max-w-[180px] truncate">
+                  {{ item.link || "—" }}
+                </td>
+                <td class="p-4 text-slate-600">
+                  {{ item.startDate | date: "mediumDate" }}
+                </td>
+                <td class="p-4 text-slate-600">
+                  {{ item.endDate | date: "mediumDate" }}
+                </td>
+                <td class="p-4">
+                  <button
+                    (click)="toggleActiveStatus(item)"
+                    [class]="
+                      item.active
+                        ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                        : 'bg-slate-100 text-slate-500 border-slate-300'
+                    "
+                    class="px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors"
+                  >
+                    {{ item.active ? "Active" : "Disabled" }}
+                  </button>
+                </td>
+                <td class="p-4 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      (click)="openEditModal(item)"
+                      class="p-2 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                      title="Edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      (click)="deleteAnnouncement(item._id!)"
+                      class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      title="Delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Dialog -->
+  @if (isModalOpen()) {
+    <div
+      class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      >
+        <div
+          class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center"
+        >
+          <h3 class="font-bold text-slate-800 text-lg">
+            {{ isEditMode() ? "Edit Announcement" : "Add New Announcement" }}
+          </h3>
+          <button
+            (click)="closeModal()"
+            class="text-slate-400 hover:text-slate-600 text-xl font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form (ngSubmit)="saveAnnouncement()" class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1"
+              >Announcement Text *</label
+            >
+            <input
+              [value]="formData.text"
+              (input)="formData.text = $any($event.target).value"
+              name="text"
+              rows="3"
+              required
+              placeholder="e.g., 🔥 Up to 50% off on all items for a limited time!"
+              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1"
+              >Link (Optional)</label
+            >
+            <input
+              type="text"
+              [value]="formData.link"
+              (input)="formData.link = $any($event.target).value"
+              name="link"
+              placeholder="/category/sale or https://..."
+              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-sm"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1"
+                >Start Date</label
+              >
+              <input
+                type="date"
+                [value]="formData.startDate"
+                (input)="formData.startDate = $any($event.target).value"
+                name="startDate"
+                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1"
+                >End Date *</label
+              >
+              <input
+                type="date"
+                [value]="formData.endDate"
+                (input)="formData.endDate = $any($event.target).value"
+                name="endDate"
+                required
+                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 pt-2">
+            <input
+              type="checkbox"
+              id="active"
+              [checked]="formData.active"
+              (change)="formData.active = $any($event.target).checked"
+              name="active"
+              class="w-4 h-4 text-rose-600 border-slate-300 rounded focus:ring-rose-500"
+            />
+            <label
+              for="active"
+              class="text-sm font-medium text-slate-700 cursor-pointer"
+            >
+              Activate announcement immediately
+            </label>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="saveAnnouncement()"
+              [disabled]="isSubmitting()"
+              class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {{ isSubmitting() ? "Saving..." : "Save Announcement" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

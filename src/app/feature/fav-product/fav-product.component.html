@@ -1,0 +1,138 @@
+@if (false) {
+  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Title Section Panel Header -->
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 mb-8 gap-4"
+      >
+        <div>
+          <h1 class="text-3xl font-black text-gray-900 tracking-tight">
+            My Wishlist
+          </h1>
+          <p class="text-xs text-gray-500 mt-1">
+            Keep track of your luxury signature scents and premium fragrances.
+          </p>
+        </div>
+
+        @if (hasFavorites()) {
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 w-fit"
+          >
+            {{ totalCount() }}
+            {{ totalCount() === 1 ? "Fragrance" : "Fragrances" }} Saved
+          </span>
+        }
+      </div>
+
+      <!-- Main Dynamic Interface Switching Layout -->
+      @if (hasFavorites()) {
+        <!-- Responsive Product Grid Grid Layout -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        >
+          @for (item of favorites(); track item.id) {
+            <div
+              class="group relative bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+            >
+              <!-- Top Section: Image and Actions Overlay -->
+              <div
+                class="relative aspect-square w-full bg-gray-100 overflow-hidden"
+              >
+                <img
+                  [src]="item.imageUrl"
+                  [alt]="item.name"
+                  class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                />
+
+                <!-- Remove Item Button Overlaid Top-Right -->
+                <button
+                  (click)="handleRemoveFromFavorites(item.id)"
+                  class="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 rounded-xl shadow-sm transition-colors backdrop-blur-xs flex items-center justify-center"
+                  title="Remove from favorites"
+                >
+                  <mat-icon class="!h-5 !w-5 !text-[20px]">delete</mat-icon>
+                </button>
+
+                <!-- Out of Stock Badge Overlay Layout -->
+                @if (!item.inStock) {
+                  <div
+                    class="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center"
+                  >
+                    <span
+                      class="px-3 py-1 bg-gray-900 text-white font-bold text-[10px] tracking-widest uppercase rounded-md shadow-sm"
+                    >
+                      Out of Stock
+                    </span>
+                  </div>
+                }
+              </div>
+
+              <!-- Bottom Section: Info Details and Action Footer -->
+              <div class="p-5 flex flex-col flex-1 justify-between gap-4">
+                <div>
+                  <span
+                    class="text-[10px] font-bold tracking-wider uppercase text-amber-600 block mb-0.5"
+                    >{{ item.brand }}</span
+                  >
+                  <h3
+                    class="font-bold text-gray-900 text-base leading-snug group-hover:text-amber-600 transition-colors line-clamp-1"
+                  >
+                    {{ item.name }}
+                  </h3>
+                  <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-lg font-black text-gray-900"
+                      >${{ item.price }}</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Primary Action Checkout Routing Buttons -->
+                <button
+                  (click)="handleAddToCart(item)"
+                  [disabled]="!item.inStock"
+                  class="w-full bg-gray-950 hover:bg-amber-600 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <mat-icon class="!h-4 !w-4 !text-[16px]"
+                    >shopping_bag</mat-icon
+                  >
+                  <span>Add To Bag</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Empty State Viewport Template -->
+        <div
+          class="max-w-md mx-auto text-center py-16 px-4 bg-white border border-gray-100 rounded-3xl shadow-xs mt-4 flex flex-col items-center gap-4"
+        >
+          <div class="p-4 bg-amber-50 text-amber-600 rounded-full">
+            <mat-icon
+              class="!h-10 !w-10 !text-[40px] flex items-center justify-center"
+              >favorite_border</mat-icon
+            >
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
+              Your Wishlist is Empty
+            </h2>
+            <p class="text-sm text-gray-500 mt-1 max-w-xs mx-auto">
+              Explore our collection of exceptional fragrances to save your top
+              choices here.
+            </p>
+          </div>
+          <button
+            routerLink="/products"
+            class="mt-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all"
+          >
+            Discover Perfumes
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+} @else {
+  <div class="flex flex-col items-center justify-center gap-2 py-10">
+    <app-empty icon="favorite_border"> Your Wishlist is Empty </app-empty>
+  </div>
+}

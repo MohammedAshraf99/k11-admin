@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px); /* تبدأ الصفحة أسفل موقعها بـ 12 بكسل */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);    /* ترجع لموقعها الطبيعي */
+  }
+}
+
+/* 2. كلاس أنيميشن الصفحة جاهز للتطبيق */
+.page-animate {
+  animation: pageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

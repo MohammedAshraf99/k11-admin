@@ -1,0 +1,50 @@
+<div class="flex min-h-screen bg-slate-950 text-white dir-ltr">
+  <aside
+    class="w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col gap-4"
+  >
+    <h2 class="text-xl font-bold text-amber-500 mb-6">Admin Panel</h2>
+    <nav class="flex flex-col gap-2 text-sm">
+      <a
+        [routerLink]="['products', 'all']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >Products</a
+      >
+      <a
+        [routerLink]="['banner']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >Banners</a
+      >
+      <a
+        [routerLink]="['promo-banner']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >PromoBanner</a
+      >
+        <a
+        [routerLink]="['checkout-list']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >Checkout list</a
+      >
+              <a
+        [routerLink]="['announcement']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >Announcement</a
+      >
+             <a
+        [routerLink]="['coupon']"
+        routerLinkActive="bg-amber-500 text-slate-950 font-bold"
+        class="p-3 rounded-xl hover:bg-slate-800 transition"
+        >Coupons</a
+      >
+
+      
+    </nav>
+  </aside>
+  <main class="flex-1">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,139 @@
+<!-- Product Image & Name -->
+<td class="py-4 px-6">
+  <div class="flex items-center gap-3">
+    <img
+      [src]="localhost + product()!.image[0]"
+      [alt]="product()?.name"
+      class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+    />
+    <div>
+      <span class="font-bold text-slate-900 block text-sm">{{
+        product()?.name
+      }}</span>
+      @for (tag of product()?.tags; track $index) {
+        <span class="text-[11px] text-slate-400">{{ tag || "N/A" }}</span>
+      }
+    </div>
+  </div>
+</td>
+
+<!-- Category Badge -->
+<td class="py-4 px-6">
+  <span
+    [class]="{
+      'bg-amber-100 text-amber-800 border-amber-200':
+        product()?.category === 'perfumes',
+      'bg-pink-100 text-pink-800 border-pink-200':
+        product()?.category === 'balloons',
+      'bg-rose-100 text-rose-800 border-rose-200':
+        product()?.category === 'gifts',
+      'bg-purple-100 text-purple-800 border-purple-200':
+        product()?.category === 'deals',
+    }"
+    class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase border inline-block"
+  >
+    {{ product()?.category }}
+  </span>
+</td>
+
+<!-- Price -->
+<td class="py-4 px-6 font-bold text-slate-900 text-sm">
+  {{ product()?.price | currency: "GBP" : "symbol" : "1.0-0" }}
+  @if (product()?.isSale) {
+    <span class="text-xs text-slate-400 line-through block font-normal"
+      >${{ product()?.salePrice | currency: "GBP" : "symbol" : "1.0-0" }}</span
+    >
+  }
+</td>
+
+<!-- Category Specific Property Preview -->
+
+<td class="py-4 px-6 text-slate-600 font-medium max-w-xs">
+  <button
+    (click)="toggleActive(product())"
+    [class]="
+      product()?.active
+        ? 'p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition-all cursor-pointer'
+        : 'p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-600 transition-all cursor-pointer'
+    "
+    [title]="
+      product()?.active !== false ? 'deactive product' : ' active product'
+    "
+  >
+    {{ product()?.active !== false ? "active" : "inactive" }}
+  </button>
+
+  @switch (product()?.category) {
+    <!-- @case ("perfumes") {
+                  <div class="space-y-0.5 text-[11px]">
+                    <div>
+                      <strong class="text-amber-900">Top:</strong>
+                      {{ product().notes?.top || "N/A" }}
+                    </div>
+                    <div>
+                      <strong class="text-amber-900">Heart:</strong>
+                      {{ product.notes?.heart || "N/A" }}
+                    </div>
+                  </div>
+                }
+                @case ("balloons") {
+                  <div class="space-y-1">
+                    <div class="text-[11px]">
+                      <strong>Dimensions:</strong> {{ product.dimensions }}
+                    </div>
+                    <div class="flex items-center gap-1">
+                      @for (color of product.colorPalette; track $index) {
+                        <span
+                          [style.background-color]="color"
+                          class="w-3 h-3 rounded-full border border-black/10 inline-block"
+                        ></span>
+                      }
+                    </div>
+                  </div>
+                }
+                @case ("gifts") {
+                  <div class="text-[11px]">
+                    <strong class="text-rose-900">Box Items:</strong>
+                    <span class="truncate block text-slate-500">{{
+                      product.boxContents?.join(", ") || "None"
+                    }}</span>
+                  </div>
+                }
+                @case ("deals") {
+                  <div class="text-[11px]">
+                    <span class="text-purple-900 font-bold block"
+                      >3-in-1 Combo Pack</span
+                    >
+                    <span class="truncate block text-slate-500"
+                      >{{ product.bundleBreakdown?.perfume }} + More</span
+                    >
+                  </div>
+                } -->
+  }
+</td>
+
+<!-- Action Buttons -->
+<td class="py-4 px-6">
+  <div class="flex items-center justify-center gap-2">
+    <button
+      (click)="openEditModal(product()!)"
+      class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+    >
+      <mat-icon class="w-4 h-4 text-[16px]">edit</mat-icon>
+    </button>
+
+    <button
+      (click)="deleteProduct(product()?._id!)"
+      class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-all cursor-pointer"
+    >
+      <mat-icon class="w-4 h-4 text-[16px]">delete</mat-icon>
+    </button>
+  </div>
+</td>
+
+<!-- @if (isModalOpen()) {
+    <app-modal
+      [productData]="$any(formProduct())"
+      [closeModall]="closeModal()"
+    ></app-modal>
+  } -->

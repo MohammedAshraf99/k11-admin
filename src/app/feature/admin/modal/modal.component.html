@@ -1,0 +1,475 @@
+<div
+  class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-auto"
+>
+  <div
+    class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-slate-100 my-8"
+  >
+    <!-- Modal Title -->
+    <div
+      class="flex items-center justify-between border-b border-slate-100 pb-4"
+    >
+      <h2 class="text-lg font-black text-slate-900">
+        {{ isEditMode() ? "Edit Product" : "Add New Product" }}
+      </h2>
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 cursor-pointer"
+      >
+        <mat-icon class="!w-5 !h-5 !text-[20px]">close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Common Fields -->
+    <div class="space-y-4 text-xs font-medium text-slate-700">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Category -->
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900"
+            >Category *</label
+          >
+          <select
+            [(ngModel)]="formProduct().category"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-hidden"
+            [class.border-rose-500]="submitted && !formProduct().category"
+          >
+            <option value="">Select Category</option>
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+          @if (submitted && !formProduct().category) {
+            <span class="text-rose-500 text-[10px] mt-1 block"
+              >Category is required</span
+            >
+          }
+        </div>
+
+        <!-- Product Name -->
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900"
+            >Product Name *</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="formProduct().name"
+            placeholder="Product Title"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden"
+            [class.border-rose-500]="submitted && !formProduct().name"
+          />
+          @if (submitted && !formProduct().name) {
+            <span class="text-rose-500 text-[10px] mt-1 block"
+              >Product name is required</span
+            >
+          }
+        </div>
+      </div>
+
+      <!-- Images Upload & Preview -->
+      <div>
+        <label class="block mb-1 text-[11px] font-bold text-slate-700"
+          >Choose Product Images (One or More) *</label
+        >
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          (change)="onFileSelected($event)"
+          class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"
+          [class.border-rose-500]="
+            submitted &&
+            (!formProduct().image || formProduct().image.length === 0)
+          "
+        />
+        @if (
+          submitted &&
+          (!formProduct().image || formProduct().image.length === 0)
+        ) {
+          <span class="text-rose-500 text-[10px] mt-1 block"
+            >At least one image is required</span
+          >
+        }
+
+        <!-- Dynamic Image Previews -->
+        @if (formProduct().image && formProduct().image.length > 0) {
+          <div class="mt-3">
+            <p class="mb-2 font-bold text-[11px] text-slate-600">
+              Image Previews:
+            </p>
+            <div class="flex flex-wrap gap-3">
+              @for (imgSrc of formProduct().image; track $index) {
+                <div class="relative group w-20 h-20">
+                  <img
+                    [src]="
+                      imgSrc.startsWith('http') ? imgSrc : localhost + imgSrc
+                    "
+                    alt="Preview"
+                    class="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    (click)="removeImage($index)"
+                    class="absolute -top-2 -right-2 bg-rose-600 hover:bg-rose-700 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-all cursor-pointer"
+                    title="Delete Image"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Price & Description -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900">Price *</label>
+          <input
+            type="number"
+            [(ngModel)]="formProduct().price"
+            placeholder="0.00"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden"
+            [class.border-rose-500]="
+              submitted && (!formProduct().price || formProduct().price <= 0)
+            "
+          />
+          @if (
+            submitted && (!formProduct().price || formProduct().price <= 0)
+          ) {
+            <span class="text-rose-500 text-[10px] mt-1 block"
+              >Price is required and must be a positive number</span
+            >
+          }
+        </div>
+
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900"
+            >Description</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="formProduct().description"
+            placeholder="Product Description"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden"
+          />
+        </div>
+      </div>
+
+      <!-- Deal & Sale Controls -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900"
+            >Hot Deal Category</label
+          >
+          <button
+            type="button"
+            (click)="toggleDeal()"
+            class="px-4 py-2 rounded-xl text-white font-bold cursor-pointer transition-all"
+            [class]="formProduct().deal ? 'bg-emerald-600' : 'bg-slate-800'"
+          >
+            {{ formProduct().deal ? "Included in Deals" : "Add to Deals" }}
+          </button>
+        </div>
+
+        <div>
+          <label class="block mb-1.5 font-bold text-slate-900"
+            >On Sale Status</label
+          >
+          <button
+            type="button"
+            (click)="toggleSale()"
+            class="px-4 py-2 rounded-xl text-white font-bold cursor-pointer transition-all"
+            [class]="formProduct().isSale ? 'bg-rose-600' : 'bg-slate-800'"
+          >
+            {{ formProduct().isSale ? "On Sale Active" : "Set On Sale" }}
+          </button>
+        </div>
+
+        @if (formProduct().isSale) {
+          <div class="col-span-2">
+            <label class="block mb-1.5 font-bold text-slate-900"
+              >Price before Sale *</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="formProduct().salePrice"
+              placeholder="If Orignal Price 100 So Sale price 200"
+              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden"
+              [class.border-rose-500]="
+                submitted &&
+                (!formProduct().salePrice || formProduct().salePrice! <= 0)
+              "
+            />
+            @if (
+              submitted &&
+              (!formProduct().salePrice || formProduct().salePrice! <= 0)
+            ) {
+              <span class="text-rose-500 text-[10px] mt-1 block"
+                >Sale price is required and must be a positive number</span
+              >
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Tags -->
+      <div>
+        <label class="block mb-1.5 font-bold text-slate-900">Tags</label>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            placeholder="Write Labels Like: Woody, Oriental, Balloon Arch"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden"
+            #tagInput
+          />
+          <button
+            type="button"
+            class="px-4 py-2 bg-slate-900 text-white rounded-xl cursor-pointer shrink-0 font-bold"
+            (click)="addTag(tagInput.value); tagInput.value = ''"
+          >
+            Add
+          </button>
+        </div>
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          @for (tag of formProduct().tags; track tag; let idx = $index) {
+            <span
+              class="bg-slate-200 text-slate-800 px-2.5 py-1 rounded-full text-xs flex items-center gap-1 font-bold"
+            >
+              {{ tag }}
+              <button
+                type="button"
+                (click)="removeTag(idx)"
+                class="hover:text-rose-600 cursor-pointer"
+              >
+                ×
+              </button>
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- DYNAMIC ATTRIBUTES BY CATEGORY -->
+      <div
+        class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4"
+      >
+        <h3
+          class="font-extrabold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5"
+        >
+          <mat-icon class="!w-4 !h-4 !text-[16px] text-slate-700"
+            >tune</mat-icon
+          >
+          {{ formProduct().category || "Category" }} Specific Attributes
+        </h3>
+
+        <!-- PERFUME ATTRIBUTES -->
+        @if (formProduct().category === "perfumes") {
+          <div class="space-y-3">
+            <div>
+              <label class="block mb-1 text-[11px] font-bold text-slate-700"
+                >Concentration *</label
+              >
+              <select
+                [(ngModel)]="formProduct().concentration"
+                class="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none"
+                [class.border-rose-500]="
+                  submitted && !formProduct().concentration
+                "
+              >
+                <option value="">Select Concentration</option>
+                <option value="Extrait de Parfum">Extrait de Parfum</option>
+                <option value="Eau de Parfum">Eau de Parfum</option>
+                <option value="Eau de Toilette">Eau de Toilette</option>
+              </select>
+              @if (submitted && !formProduct().concentration) {
+                <span class="text-rose-500 text-[10px] mt-1 block"
+                  > Concentration required</span
+                >
+              }
+            </div>
+
+            <!-- <div>
+              <label class="block mb-1 text-[11px] font-bold text-slate-700"
+                >Sizes (ml) *</label
+              >
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="e.g. 50ml, 100ml"
+                  class="w-full p-2 bg-white border border-slate-200 rounded-xl"
+                  #sizeInput
+                />
+                <button
+                  type="button"
+                  (click)="addSize(sizeInput.value); sizeInput.value = ''"
+                  class="px-3 py-2 bg-slate-900 text-white font-bold rounded-xl text-[11px] shrink-0"
+                >
+                  Add Size
+                </button>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                @for (s of formProduct().size; track s; let idx = $index) {
+                  <span
+                    class="bg-white border border-slate-200 px-2.5 py-1 rounded-full text-xs flex items-center gap-1 font-bold"
+                  >
+                    {{ s }}
+                    <button
+                      type="button"
+                      (click)="removeSize(idx)"
+                      class="hover:text-rose-600 cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </span>
+                }
+              </div>
+              @if (
+                submitted &&
+                (!formProduct().size || formProduct().size?.length === 0)
+              ) {
+                <span class="text-rose-500 text-[10px] mt-1 block"
+                  >الحجم مطلوب</span
+                >
+              }
+            </div> -->
+          </div>
+        }
+
+        <!-- BALLOON ATTRIBUTES -->
+        @if (formProduct().category === "balloons") {
+          <div class="space-y-3">
+            <div>
+              <label class="block mb-1 text-[11px] font-bold text-slate-700"
+                >Color Palette</label
+              >
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="color"
+                  [(ngModel)]="newColorHex"
+                  class="w-9 h-9 rounded-xl border border-slate-200 cursor-pointer p-0.5"
+                />
+                <button
+                  type="button"
+                  (click)="addColorHex()"
+                  class="px-3 py-2 bg-slate-900 text-white font-bold rounded-xl text-[11px]"
+                >
+                  Add Color
+                </button>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                @for (
+                  color of formProduct().colorPalette;
+                  track $index
+                ) {
+                  <span
+                    class="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-xl"
+                  >
+                    <span
+                      [style.background-color]="color"
+                      class="w-3.5 h-3.5 rounded-full inline-block border border-slate-300"
+                    ></span>
+                    <button
+                      type="button"
+                      (click)="removeColorHex($index)"
+                      class="text-slate-400 hover:text-rose-600"
+                    >
+                      ×
+                    </button>
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- GIFTS ATTRIBUTES -->
+        @if (formProduct().category === "gifts") {
+          <div class="space-y-3">
+            <div>
+              <label class="block mb-1 text-[11px] font-bold text-slate-700"
+                >Occasion *</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="formProduct().occasion"
+                placeholder="e.g., Anniversary & Birthdays"
+                class="w-full p-2.5 bg-white border border-slate-200 rounded-xl"
+                [class.border-rose-500]="
+                  submitted && !formProduct().occasion
+                "
+              />
+              @if (submitted && !formProduct().occasion) {
+                <span class="text-rose-500 text-[10px] mt-1 block"
+                  >Occasion required</span
+                >
+              }
+            </div>
+
+            <div>
+              <label class="block mb-1 text-[11px] font-bold text-slate-700"
+                >What's Inside The Box</label
+              >
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  [ngModel]="newBoxContent()"
+                  (ngModelChange)="newBoxContent.set($event)"
+                  placeholder="e.g., Artisanal Chocolates"
+                  class="w-full p-2 bg-white border border-slate-200 rounded-xl"
+                />
+                <button
+                  type="button"
+                  (click)="addBoxContent()"
+                  class="px-3 py-2 bg-slate-900 text-white font-bold rounded-xl text-[11px] shrink-0"
+                >
+                  Add Item
+                </button>
+              </div>
+              <ul class="space-y-1">
+                @for (
+                  item of formProduct().boxContents;
+                  track $index
+                ) {
+                  <li
+                    class="flex items-center justify-between bg-white px-3 py-1.5 rounded-xl border border-slate-200"
+                  >
+                    <span>{{ item }}</span>
+                    <button
+                      type="button"
+                      (click)="removeBoxContent($index)"
+                      class="text-rose-600 font-bold cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div
+      class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100"
+    >
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="saveProduct()"
+        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-all shadow-md cursor-pointer"
+      >
+        {{ isEditMode() ? "Update Product" : "Save Product" }}
+      </button>
+    </div>
+  </div>
+</div>
+
+----------------------

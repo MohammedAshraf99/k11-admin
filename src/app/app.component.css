@@ -1,0 +1,79 @@
+/* 1. حركة تموج وتدرج النقاط */
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* 2. حركة ظهور محتوى الصفحة بعد النقاط */
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. الحاوية الرئيسية للانتقال */
+.page-transition-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* 4. تصميم حاوية النقاط */
+.page-dots-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 2rem 0;
+
+  /* تختفي النقاط تدريجياً بعد ظهور الصفحة */
+  animation: fadeOutDots 0.4s ease-out 0.4s forwards;
+}
+
+.page-dots-loader span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  /* يمكنك تغيير amber-600 إلى أي لون تريد مثل Tailwind bg-amber-600 */
+  background-color: var(--primary-color, #d97706);
+  display: inline-block;
+  animation: dotPulse 0.8s infinite ease-in-out;
+}
+
+/* توقيت التموج لكل نقطة */
+.page-dots-loader span:nth-child(1) {
+  animation-delay: 0s;
+}
+.page-dots-loader span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.page-dots-loader span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* 5. حركة انزلاق وظهور محتوى الصفحة */
+.page-content-animated {
+  animation: contentFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
+}
+
+@keyframes fadeOutDots {
+  to {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,38 @@
+<div
+  class="flex items-center gap-1.5 bg-slate-200/60 p-1.5 rounded-2xl overflow-x-auto w-full md:w-auto"
+>
+  <!-- <button
+    (click)="activeCategoryFilter.set('All')"
+    [class.bg-white]="activeCategoryFilter() === 'All'"
+    [class.text-slate-900]="activeCategoryFilter() === 'All'"
+    [class.shadow-xs]="activeCategoryFilter() === 'All'"
+    class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap"
+  >
+    All ({{ 0 }})
+  </button> -->
+
+  <a
+    (click)="activeCategoryFilter.set('all')"
+    [class.bg-white]="activeCategoryFilter() === 'all'"
+    [class.text-slate-900]="activeCategoryFilter() === 'all'"
+    [class.shadow-xs]="activeCategoryFilter() === 'all'"
+    class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap"
+    (click)="specCategory.emit('all')"
+    [routerLink]="['/admin', { outlets: { admin: ['products', 'all'] } }]"
+  >
+    {{ 'all' }} 
+  </a>
+  @for (cat of categories(); track cat) {
+    <a
+      (click)="activeCategoryFilter.set(cat.category )"
+      [class.bg-white]="activeCategoryFilter() === cat.category"
+      [class.text-slate-900]="activeCategoryFilter() === cat.category"
+      [class.shadow-xs]="activeCategoryFilter() === cat.category"
+      class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap"
+      (click)="specCategory.emit(cat.category)"
+      [routerLink]="['/admin', { outlets: { admin: ['products', cat.category] } }]"
+    >
+      {{ cat.category }} ({{ cat.count }})
+    </a>
+  }
+</div>

@@ -1,0 +1,226 @@
+<div class="min-h-screen bg-slate-50 p-6 md:p-10">
+  <!-- Top Header -->
+  <div
+    class="mb-8 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Successful Orders</h1>
+      <p class="text-sm text-slate-500">
+        Live monitoring of successful PayPal checkout requests.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800"
+      >
+        <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Live
+        Monitoring
+      </span>
+    </div>
+  </div>
+
+  <!-- Overview Stats -->
+  <div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Total Revenue</span>
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"
+        >
+          <mat-icon>payments</mat-icon>
+        </div>
+      </div>
+      <p class="mt-2 text-2xl font-bold text-slate-900">
+        {{ totalRevenue() | currency: "GBP" : "symbol" : "1.0-0" }} 
+      </p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Completed Orders</span>
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+        >
+          <mat-icon>shopping_bag</mat-icon>
+        </div>
+      </div>
+      <p class="mt-2 text-2xl font-bold text-slate-900">
+        {{ totalOrdersCount() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Search Filter -->
+  <div
+    class="mb-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm"
+  >
+    <div class="relative w-full">
+      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        >search</mat-icon
+      >
+      <input
+        type="text"
+        placeholder="Search by PayPal Order ID, Customer Name, Email, or Payer ID..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-sm text-slate-800 focus:border-indigo-500 focus:bg-white focus:outline-none"
+      />
+    </div>
+  </div>
+
+  <!-- Mongoose Orders Table -->
+  <div
+    class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead
+          class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500"
+        >
+          <tr>
+            <th class="px-6 py-4">PayPal Order ID</th>
+            <th class="px-6 py-4">Customer Info</th>
+            <th class="px-6 py-4">Items Count</th>
+            <th class="px-6 py-4">Total Amount</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4">Date & Time</th>
+            <th class="px-6 py-4 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (order of filteredOrders(); track order.orderID) {
+            <tr class="transition-colors hover:bg-slate-50/80">
+              <td class="px-6 py-4 font-semibold text-slate-900">
+                {{ order.orderID }}
+                <div class="text-xs font-normal text-slate-400">
+                  Payer ID: {{ order.customerInfo.payerId }}
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-medium text-slate-900">
+                  {{ order.customerInfo.name }}
+                </div>
+                <div class="text-xs text-slate-400">
+                  {{ order.customerInfo.email }}
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                >
+                  {{ order.items.length }} Item(s)
+                </span>
+              </td>
+              <td class="px-6 py-4 font-bold text-slate-900">
+                {{ order.amount | currency: order.currency }}
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-xs text-slate-500">
+                {{ order.createdAt }}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button
+                  (click)="viewOrderDetails(order)"
+                  class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-indigo-600 hover:text-white"
+                >
+                  View Details
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                No orders match your search criteria.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  @if (selectedOrder(); as order) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+    >
+      <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+        <div
+          class="flex items-center justify-between border-b border-slate-100 pb-4"
+        >
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Order Details</h3>
+            <p class="text-xs text-slate-400">PayPal ID: {{ order.orderID }}</p>
+          </div>
+          <button
+            (click)="closeDetailsModal()"
+            class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="my-4 space-y-4">
+          <!-- Customer Info -->
+          <div class="rounded-xl bg-slate-50 p-3.5 text-xs text-slate-700">
+            <p class="font-semibold text-slate-900">
+              {{ order.customerInfo.name }}
+            </p>
+            <p>{{ order.customerInfo.email }}</p>
+            <p class="mt-1 text-slate-400">
+              Payer ID: {{ order.customerInfo.payerId }}
+            </p>
+          </div>
+
+          <!-- Items Purchased -->
+          <div>
+            <h4 class="mb-2 text-xs font-semibold uppercase text-slate-400">
+              Purchased Items
+            </h4>
+            <div class="space-y-2">
+              @for (item of order.items; track item.name) {
+                <div
+                  class="flex items-center justify-between rounded-lg border border-slate-100 p-3 text-sm"
+                >
+                  <span class="font-medium text-slate-800">{{
+                    item.name
+                  }}</span>
+                  <span class="font-semibold text-slate-900"
+                    >{{ item.quantity }}x
+                    {{ item.price | currency: order.currency }}</span
+                  >
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Payment Total -->
+          <div
+            class="flex items-center justify-between border-t border-slate-100 pt-3 text-sm"
+          >
+            <span class="font-semibold text-slate-600">Total Paid</span>
+            <span class="text-lg font-bold text-emerald-600">{{
+              order.amount | currency: order.currency
+            }}</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button
+            (click)="closeDetailsModal()"
+            class="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
