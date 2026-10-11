@@ -40,7 +40,7 @@ export class PromobannermangeComponent {
     description: '',
     discountText: '',
     ctaText: 'Explore Collection',
-   ctaLink: '/perfumes',
+   ctaLink: 'category/perfumes',
     imageUrl: ''
   });
 
@@ -71,7 +71,7 @@ export class PromobannermangeComponent {
       description: '',
       discountText: '',
       ctaText: 'Explore Collection',
-     ctaLink: '/perfumes',
+     ctaLink: 'category/perfumes',
       imageUrl: ''
     });
     this.isModalOpen.set(true);
@@ -98,8 +98,8 @@ export class PromobannermangeComponent {
   saveBanner(): void {
     const currentData = this.formBanner();
 
-    if (!currentData.title || !currentData.description) {
-      alert('Title and Description are required!');
+    if (!currentData.title ) {
+      alert('Title is required!');
       return;
     }
 
@@ -116,7 +116,7 @@ export class PromobannermangeComponent {
     formData.append('description', currentData.description);
     formData.append('discountText', currentData.discountText || '');
     formData.append('buttonText', currentData.ctaText || 'Explore Collection');
-    formData.append('buttonLink', currentData.ctaLink|| '/perfumes');
+    formData.append('buttonLink', currentData.ctaLink|| 'category/perfumes');
 
     if (this.selectedFile) {
       formData.append('image', this.selectedFile);

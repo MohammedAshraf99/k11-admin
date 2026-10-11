@@ -24,7 +24,7 @@ export class BannerComponent implements OnInit {
     title: '',
     subtitle: '',
     discountTag: '',
-    ctaLink: '/perfumes',
+    ctaLink: 'category/perfumes',
     ctaText: 'SHOP NOW',
   });
 
@@ -37,9 +37,7 @@ export class BannerComponent implements OnInit {
   fetchBanners(): void {
     this.isLoading.set(true);
     this.bannerService.getBanners().subscribe({
-      next: (res) => {
-        console.log(res.data.length)
-        
+      next: (res) => {        
         if (res.success) this.banners.set(res.data);
       },
       error: (err) => console.error(err),
@@ -53,7 +51,7 @@ export class BannerComponent implements OnInit {
       title: '',
       subtitle: '',
       discountTag: '',
-      ctaLink: '/perfumes',
+      ctaLink: 'category/perfumes',
       ctaText: 'SHOP NOW',
     });
     this.selectedFile = null;
@@ -100,7 +98,6 @@ export class BannerComponent implements OnInit {
     formData.append('ctaText', data.ctaText || 'SHOP NOW');
 
     if (this.selectedFile) {
-      console.log(this.selectedFile);
       formData.append('image', this.selectedFile);
     }
 

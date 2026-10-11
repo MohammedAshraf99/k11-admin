@@ -9,7 +9,6 @@ export interface UploadImageResponse {
   imageUrl: string;
 }
 
-
 @Injectable({
   providedIn: 'root',
 })

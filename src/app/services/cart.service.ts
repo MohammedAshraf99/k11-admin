@@ -23,18 +23,11 @@ export class CartService {
   getguestId() {
     this.guestUserService.getGuestId();
   }
-
-  // حالة السلة الحالية للوصول السريع والتحديث التلقائي في الشاشات
   private cartSubject = new BehaviorSubject<Cart | null>(null);
   private cartItemCount = new BehaviorSubject<number | null>(0);
   public cartCount$ = this.cartItemCount.asObservable();
   public cart$ = this.cartSubject.asObservable();
 
-  // Signal لحساب إجمالي عدد العناصر المضافة للسلة للـ Badge في الـ Navbar
-
-  /**
-   * جلب محتويات السلة الخاصة بالمستخدم
-   */
   getCart(): Observable<ApiResponse<Cart>> {
   this.guestUserService.guestId();
     return this.http
@@ -114,7 +107,7 @@ export class CartService {
         this.cartSubject.next(null);
         this.cartItemCount.next(0);
       }),
-    );
+x`x`    );
   }
 
   /**
